@@ -10,9 +10,9 @@ import { parseCharacter } from "./parser.mjs";
 /* -------------------------------------------- */
 
 Hooks.once("init", () => {
+  // Hidden: which packs to read classes/species/backgrounds from (blank = all). Not shown in settings.
   game.settings.register(MODULE_ID, "packs", {
-    name: "PCIMP.Setting.packs.name", hint: "PCIMP.Setting.packs.hint",
-    scope: "world", config: true, type: String, default: "",
+    scope: "world", config: false, type: String, default: "",
     onChange: () => CompendiumIndex.reset()
   });
   game.settings.register(MODULE_ID, "placeholders", {
@@ -29,14 +29,14 @@ Hooks.once("init", () => {
   });
 
   const api = {
-    openWizard: (options={}) => {
-      const open = foundry.applications.instances.get("pc-5e-importer-wizard");
-      return Promise.resolve((open ?? new PCImporterWizard(options)).render({ force: true })).catch(showError);
-    },
-    openLevelUp: actor => {
-      const open = foundry.applications.instances.get(`pc-5e-importer-levelup-${actor.id}`);
-      return Promise.resolve((open ?? new LevelUpApp(actor)).render({ force: true })).catch(showError);
-    },
+    openWizard: (options={}) => safely(() => {
+      const open = foundry.applications.instances?.get("pc-5e-importer-wizard");
+      return (open ?? new PCImporterWizard(options)).render({ force: true });
+    }),
+    openLevelUp: actor => safely(() => {
+      const open = foundry.applications.instances?.get(`pc-5e-importer-levelup-${actor.id}`);
+      return (open ?? new LevelUpApp(actor)).render({ force: true });
+    }),
     importFromText: async text => {
       const app = foundry.applications.instances.get("pc-5e-importer-wizard") ?? new PCImporterWizard();
       await app.applyPaste(text);
@@ -50,10 +50,22 @@ Hooks.once("init", () => {
   globalThis.PCImporter = api;
 });
 
+/** Run an opener and report any error, whether it throws straight away or later. */
+function safely(fn) {
+  try { return Promise.resolve(fn()).catch(showError); }
+  catch(err) { showError(err); return Promise.resolve(); }
+}
+
 function showError(err) {
   console.error(`${MODULE_ID} |`, err);
   ui.notifications.error(`PC Importer: ${err?.message ?? err}`);
 }
+
+// Index compendiums in the background once the world is ready, so the wizard opens with data.
+Hooks.once("ready", () => {
+  if ( game.system.id !== "dnd5e" || !canImport() ) return;
+  setTimeout(() => CompendiumIndex.load().catch(err => console.warn(`${MODULE_ID} | Preload failed`, err)), 2000);
+});
 
 Hooks.on("createCompendium", () => CompendiumIndex.reset());
 Hooks.on("deleteCompendium", () => CompendiumIndex.reset());
@@ -78,7 +90,11 @@ Hooks.on("renderActorDirectory", (app, html) => {
   button.type = "button";
   button.className = "pcimp-open";
   button.innerHTML = `<i class="fa-solid fa-user-plus"></i> ${game.i18n.localize("PCIMP.OpenButton")}`;
-  button.addEventListener("click", () => game.modules.get(MODULE_ID).api.openWizard());
+  button.addEventListener("click", ev => {
+    ev.preventDefault();
+    console.log(`${MODULE_ID} | Import PC clicked`);
+    game.modules.get(MODULE_ID).api.openWizard();
+  });
   actions.append(button);
 });
 

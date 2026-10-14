@@ -2,14 +2,14 @@
 
 A Foundry VTT module for the D&D 5e system that **imports player characters** and **levels them up**. It brings in only what makes up the PC — species, background, class, subclass, feats, equipment, spells and traits (skills, expertise, languages, tools, armor and weapon proficiencies, senses, currency). Nothing else.
 
-Works with **2014 (5e)** and **2024 (5.5e)** content, including your own homebrew compendiums.
+Works with **2014 (5e)** and **2024 (5.5e)** content, using the classes, species and backgrounds already in your world (the D&D 5e system's own content plus any homebrew you have). It doesn't add any compendiums.
 
 ## Features
 
 **Import a PC** — the *Import PC* button at the top of the Actors sidebar opens a five-step wizard:
 
 1. **Paste** — paste a character sheet and press *Read sheet*. Recognised lines fill in the other tabs. Skip this tab to build from scratch.
-2. **Species, Background & Class** — pick from your compendiums, filtered by rules version. Import at level 1, set a higher level, or add multiclass rows.
+2. **Species, Background & Class** — pick from the classes, species and backgrounds in your world, labeled 2014 or 2024. Import at level 1, set a higher level, or add multiclass rows.
 3. **Ability Scores** — Standard Array, Point Buy (27 points) or Manual/Rolled. Your class's primary abilities are starred.
 4. **Items & Traits** — extra feats, equipment, spells and proficiencies not already granted by your choices.
 5. **Review** — shows what was found in which compendium, what will become a placeholder, and the rules version detected.
@@ -45,7 +45,6 @@ Multiclass: `Class: Fighter 3 / Wizard (Evocation) 2`. Pasted ability scores are
 
 ## Settings
 
-- **Compendiums to use** — limit lookups to certain packs (comma-separated IDs). Blank = all Item compendiums.
 - **Create placeholders for unknown items** — keep unmatched items/feats/spells as blank items so nothing is lost.
 - **Players can import** — show *Import PC* to players allowed to create actors.
 - **Level Up button** — show the button on character sheets.

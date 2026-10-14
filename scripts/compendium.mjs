@@ -6,13 +6,17 @@ import { MODULE_ID } from "./constants.mjs";
  */
 export class CompendiumIndex {
   static #cache = null;
+  static #loading = null;
+
+  /** True once every pack has been indexed. */
+  static get ready() { return !!this.#cache; }
 
   static FIELDS = [
     "type", "img", "system.identifier", "system.classIdentifier",
     "system.source.rules", "system.source.book", "system.level", "system.type.value"
   ];
 
-  static reset() { this.#cache = null; }
+  static reset() { this.#cache = null; this.#loading = null; }
 
   /** Packs the GM allowed in settings (empty = all Item packs). */
   static get packs() {
@@ -24,13 +28,26 @@ export class CompendiumIndex {
   }
 
   /** @returns {Promise<Record<string, object[]>>} entries keyed by item type */
-  static async load() {
-    if ( this.#cache ) return this.#cache;
+  static load() {
+    if ( this.#cache ) return Promise.resolve(this.#cache);
+    // Share one load between every caller, so opening the wizard never indexes packs twice.
+    return this.#loading ??= this.#build().then(db => {
+      this.#cache = db;
+      return db;
+    }).finally(() => { this.#loading = null; });
+  }
+
+  static async #build() {
     const byType = {};
-    for ( const pack of this.packs ) {
+    const started = performance.now();
+    await Promise.all(this.packs.map(async pack => {
       let index;
-      try { index = await pack.getIndex({ fields: this.FIELDS }); }
-      catch(err) { console.warn(`${MODULE_ID} | Could not index ${pack.collection}`, err); continue; }
+      try {
+        index = await withTimeout(pack.getIndex({ fields: this.FIELDS }), 20000);
+      } catch(err) {
+        console.warn(`${MODULE_ID} | Skipped compendium ${pack.collection}:`, err?.message ?? err);
+        return;
+      }
       for ( const e of index ) {
         const entry = {
           uuid: e.uuid ?? `Compendium.${pack.collection}.Item.${e._id}`,
@@ -48,9 +65,10 @@ export class CompendiumIndex {
         };
         (byType[e.type] ??= []).push(entry);
       }
-    }
+    }));
     for ( const list of Object.values(byType) ) list.sort((a, b) => a.name.localeCompare(b.name));
-    return this.#cache = byType;
+    console.log(`${MODULE_ID} | Indexed ${this.packs.length} compendiums in ${Math.round(performance.now() - started)} ms`);
+    return byType;
   }
 
   /**
@@ -100,6 +118,10 @@ export class CompendiumIndex {
     foundry.utils.setProperty(data, "_stats.compendiumSource", uuid);
     return foundry.utils.mergeObject(data, overrides);
   }
+}
+
+function withTimeout(promise, ms) {
+  return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), ms))]);
 }
 
 function sortedWords(key) { return key.split(" ").sort().join(" "); }

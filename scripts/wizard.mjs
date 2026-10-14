@@ -62,6 +62,20 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
 
   async _prepareContext() {
     const s = this.state;
+    if ( !CompendiumIndex.ready ) {
+      // Open the window straight away; fill it in once the compendiums are indexed.
+      CompendiumIndex.load()
+        .then(() => this.rendered && this.render())
+        .catch(err => {
+          console.error(`${MODULE_ID} |`, err);
+          ui.notifications.error(`PC Importer: ${err?.message ?? err}`);
+        });
+      return {
+        loading: true, state: s,
+        tabs: TABS.map((id, i) => ({ id, number: i + 1, label: `PCIMP.Tab.${id}`, active: s.tab === id })),
+        isFirstTab: true, isLastTab: false
+      };
+    }
     const rules = this.rulesFilter;
     const opt = (list, selected) => list.map(e => ({
       value: e.uuid, label: e.rules ? `${e.name} (${e.rules})` : e.name, selected: e.uuid === selected, pack: e.pack

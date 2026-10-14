@@ -37,7 +37,7 @@
     "Primary": "Primary",
     "PrimaryTip": "Primary ability of your class",
     "ClassHint": "Import at level 1, or set a higher level to run every level's advancement now. Use Level Up on the sheet to grow the character later.",
-    "NoPacks": "No Item compendiums are available. Check the module's compendium setting.",
+    "NoPacks": "No classes, species or backgrounds were found. Make sure the D&D 5e system's content is available in this world.",
     "Method": {
       "label": "Method",
       "standard": "Standard Array",
@@ -97,10 +97,6 @@
     "MulticlassReq": "{class} multiclassing needs 13+ in {abilities}.",
     "LeveledUp": "{name} is now level {level}.",
     "Setting": {
-      "packs": {
-        "name": "Compendiums to use",
-        "hint": "Comma-separated compendium IDs (e.g. dnd5e.classes24, world.homebrew). Leave blank to use every Item compendium."
-      },
       "placeholders": {
         "name": "Create placeholders for unknown items",
         "hint": "When an item, feat or spell from a pasted sheet isn't in any compendium, add a blank item with that name so nothing is lost."
@@ -113,6 +109,7 @@
         "name": "Level Up button",
         "hint": "Show a Level Up button next to the rest buttons on character sheets."
       }
-    }
+    },
+    "Loading": "Loading classes, species and backgrounds…"
   }
 }

@@ -8,6 +8,9 @@
   </nav>
 
   <div class="pcimp-body">
+    {{#if loading}}
+    <div class="pcimp-loading"><i class="fa-solid fa-spinner fa-spin"></i> {{localize "PCIMP.Loading"}}</div>
+    {{else}}
 
     {{!-- ───────────── Paste ───────────── --}}
     {{#if tab.paste}}
@@ -152,6 +155,7 @@
       {{/if}}
       <p class="hint">{{localize "PCIMP.ReviewHint"}}</p>
     </section>
+    {{/if}}
     {{/if}}
   </div>
 

@@ -62,3 +62,4 @@ ul.pcimp-report { margin: 6px 0 0 18px; }
   .pcimp-abilities { grid-template-columns: repeat(3, 1fr); }
   .pcimp-class-row { grid-template-columns: 1fr 1fr; }
 }
+.pcimp-loading { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 240px; font-size: 14px; }
