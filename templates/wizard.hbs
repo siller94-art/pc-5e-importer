@@ -139,7 +139,7 @@
         <li class="{{#if found}}found{{else}}missing{{/if}}">
           <i class="fa-solid {{#if found}}fa-check{{else}}fa-xmark{{/if}}"></i>
           {{name}}{{#if qty}} ×{{qty}}{{/if}}
-          {{#if found}}<span class="hint">→ {{match}}{{#if rules}} ({{rules}}){{/if}} · {{pack}}</span>{{else}}<span class="hint">{{localize ../../placeholderNote}}</span>{{/if}}
+          {{#if found}}<span class="hint">→ {{match}}{{#if rules}} ({{rules}}){{/if}} · {{pack}}</span>{{else}}<span class="hint">{{localize @root.review.placeholderNote}}</span>{{/if}}
         </li>
         {{/each}}
       </ul>

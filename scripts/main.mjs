@@ -31,11 +31,11 @@ Hooks.once("init", () => {
   const api = {
     openWizard: (options={}) => {
       const open = foundry.applications.instances.get("pc-5e-importer-wizard");
-      return (open ?? new PCImporterWizard(options)).render({ force: true });
+      return Promise.resolve((open ?? new PCImporterWizard(options)).render({ force: true })).catch(showError);
     },
     openLevelUp: actor => {
       const open = foundry.applications.instances.get(`pc-5e-importer-levelup-${actor.id}`);
-      return (open ?? new LevelUpApp(actor)).render({ force: true });
+      return Promise.resolve((open ?? new LevelUpApp(actor)).render({ force: true })).catch(showError);
     },
     importFromText: async text => {
       const app = foundry.applications.instances.get("pc-5e-importer-wizard") ?? new PCImporterWizard();
@@ -49,6 +49,11 @@ Hooks.once("init", () => {
   game.modules.get(MODULE_ID).api = api;
   globalThis.PCImporter = api;
 });
+
+function showError(err) {
+  console.error(`${MODULE_ID} |`, err);
+  ui.notifications.error(`PC Importer: ${err?.message ?? err}`);
+}
 
 Hooks.on("createCompendium", () => CompendiumIndex.reset());
 Hooks.on("deleteCompendium", () => CompendiumIndex.reset());

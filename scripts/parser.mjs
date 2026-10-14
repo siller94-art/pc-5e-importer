@@ -102,7 +102,7 @@ export function parseCharacter(text) {
 
   out.feats = list("feats").map(s => s.replace(/\s*\(.*?\)\s*$/, "").trim()).filter(Boolean);
   out.equipment = list("equipment").map(parseQuantity).filter(e => e.name);
-  out.spells = (sections.spells ?? []).flatMap(l => splitList(stripSpellLevelLabel(l)))
+  out.spells = (sections.spells ?? []).flatMap(l => splitList(stripSpellLevelLabel(l)).map(stripSpellLevelLabel))
     .map(s => cleanName(s.replace(/\s*\((?:prepared|ritual|always|concentration|[a-z ]*pact)\)/gi, "")))
     .filter(Boolean);
   out.currency = parseCurrency(joined("currency"));
