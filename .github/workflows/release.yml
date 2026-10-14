@@ -1,9 +1,9 @@
 name: Release
 
-# Push a tag like v1.0.1 to build module.zip and publish a GitHub release.
+# Publish a GitHub release (tag like v1.0.1) and this attaches module.json + module.zip to it.
 on:
-  push:
-    tags: ["v*"]
+  release:
+    types: [published]
 
 permissions:
   contents: write
@@ -27,8 +27,6 @@ jobs:
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ github.ref_name }}
-          generate_release_notes: true
           files: |
             module.json
             module.zip
