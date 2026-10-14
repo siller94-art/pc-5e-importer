@@ -1,0 +1,41 @@
+<div class="pcimp-shell pcimp-levelup-body">
+  <div class="pcimp-modes">
+    {{#if hasClasses}}
+    <label class="checkbox"><input type="radio" name="mode" value="existing" {{checked existing}}> {{localize "PCIMP.LevelExisting"}}</label>
+    {{/if}}
+    <label class="checkbox"><input type="radio" name="mode" value="new" {{checked isNew}}> {{localize "PCIMP.Multiclass"}}</label>
+  </div>
+
+  {{#if existing}}
+  <label>{{localize "PCIMP.Class"}}
+    <select name="classId">{{#each classOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+  </label>
+  {{else}}
+  <label>{{localize "PCIMP.NewClass"}}
+    <select name="newClassUuid"><option value="">{{localize "PCIMP.PickClass"}}</option>
+      {{#each newOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+    </select>
+  </label>
+  {{/if}}
+
+  <label>{{localize "PCIMP.LevelsToAdd"}}<input type="number" name="levels" min="1" max="19" value="{{state.levels}}"></label>
+
+  <table class="pcimp-preview">
+    <tr><th>{{localize "PCIMP.CharacterLevel"}}</th><td>{{preview.from}} → <strong>{{preview.to}}</strong></td></tr>
+    <tr><th>{{localize "PCIMP.Prof"}}</th><td>{{preview.profFrom}} → {{preview.profTo}}</td></tr>
+    {{#if preview.hd}}<tr><th>{{localize "PCIMP.HitDie"}}</th><td>{{preview.hd}}{{#if preview.avg}} · {{localize "PCIMP.AvgHP"}} +{{preview.avg}}{{/if}}</td></tr>{{/if}}
+    {{#if preview.asiLevel}}<tr><th>{{localize "PCIMP.ASI"}}</th><td>{{localize "PCIMP.ASIPossible"}}</td></tr>{{/if}}
+  </table>
+
+  {{#if warnings.length}}
+  <ul class="pcimp-warnings">{{#each warnings}}<li><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</li>{{/each}}</ul>
+  {{/if}}
+
+  <p class="hint">{{localize "PCIMP.LevelUpHint"}}</p>
+  <footer class="pcimp-footer">
+    <span class="spacer"></span>
+    <button type="button" class="bright" data-action="levelUp" {{#unless canLevel}}disabled{{/unless}}>
+      <i class="fa-solid fa-angles-up"></i> {{localize "PCIMP.LevelUp"}}
+    </button>
+  </footer>
+</div>
