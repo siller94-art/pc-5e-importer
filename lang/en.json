@@ -18,7 +18,11 @@
     "NotFound": "No {type} named \"{name}\" in your compendiums.",
     "Name": "Name",
     "RulesLabel": "Rules",
-    "Rules": { "any": "Detect from picks", "2014": "2014 (5e)", "2024": "2024 (5.5e)" },
+    "Rules": {
+      "any": "Both 2014 and 2024",
+      "2014": "2014 (5e)",
+      "2024": "2024 (5.5e)"
+    },
     "Species": "Species",
     "Background": "Background",
     "Classes": "Class",
@@ -34,7 +38,12 @@
     "PrimaryTip": "Primary ability of your class",
     "ClassHint": "Import at level 1, or set a higher level to run every level's advancement now. Use Level Up on the sheet to grow the character later.",
     "NoPacks": "No Item compendiums are available. Check the module's compendium setting.",
-    "Method": { "label": "Method", "standard": "Standard Array", "pointbuy": "Point Buy", "manual": "Manual / Rolled" },
+    "Method": {
+      "label": "Method",
+      "standard": "Standard Array",
+      "pointbuy": "Point Buy",
+      "manual": "Manual / Rolled"
+    },
     "PointsLeft": "Points left",
     "PointsOver": "Point buy is over budget.",
     "ArrayInvalid": "Use each Standard Array value exactly once.",
@@ -88,10 +97,22 @@
     "MulticlassReq": "{class} multiclassing needs 13+ in {abilities}.",
     "LeveledUp": "{name} is now level {level}.",
     "Setting": {
-      "packs": { "name": "Compendiums to use", "hint": "Comma-separated compendium IDs (e.g. dnd5e.classes24, world.homebrew). Leave blank to use every Item compendium." },
-      "placeholders": { "name": "Create placeholders for unknown items", "hint": "When an item, feat or spell from a pasted sheet isn't in any compendium, add a blank item with that name so nothing is lost." },
-      "playerImport": { "name": "Players can import", "hint": "Show the Import PC button to players who have permission to create actors." },
-      "levelUpButton": { "name": "Level Up button", "hint": "Show a Level Up button next to the rest buttons on character sheets." }
+      "packs": {
+        "name": "Compendiums to use",
+        "hint": "Comma-separated compendium IDs (e.g. dnd5e.classes24, world.homebrew). Leave blank to use every Item compendium."
+      },
+      "placeholders": {
+        "name": "Create placeholders for unknown items",
+        "hint": "When an item, feat or spell from a pasted sheet isn't in any compendium, add a blank item with that name so nothing is lost."
+      },
+      "playerImport": {
+        "name": "Players can import",
+        "hint": "Show the Import PC button to players who have permission to create actors."
+      },
+      "levelUpButton": {
+        "name": "Level Up button",
+        "hint": "Show a Level Up button next to the rest buttons on character sheets."
+      }
     }
   }
 }
