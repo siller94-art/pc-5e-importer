@@ -1,9 +1,14 @@
 name: Release
 
-# Publish a GitHub release (tag like v1.0.1) and this attaches module.json + module.zip to it.
+# Publishes a release automatically whenever the "version" in module.json changes on main
+# (and also when a release is published by hand on GitHub).
 on:
+  push:
+    branches: [main]
+    paths: [module.json, .github/workflows/release.yml]
   release:
     types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,20 +18,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Work out the version
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG="v$(jq -r .version module.json)"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" != "release" ] && git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Release $TAG already exists - nothing to do."
+          fi
 
       - name: Set version and download URL in module.json
+        if: steps.ver.outputs.skip != 'true'
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          jq --arg v "$VERSION" \
-             --arg d "https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/module.zip" \
+          jq --arg v "${{ steps.ver.outputs.version }}" \
+             --arg d "https://github.com/${{ github.repository }}/releases/download/${{ steps.ver.outputs.tag }}/module.zip" \
              '.version = $v | .download = $d' module.json > module.tmp && mv module.tmp module.json
 
       - name: Zip module
+        if: steps.ver.outputs.skip != 'true'
         run: zip -r module.zip module.json README.md scripts templates styles lang
 
       - name: Publish release
+        if: steps.ver.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true
+          make_latest: true
           files: |
             module.json
             module.zip
