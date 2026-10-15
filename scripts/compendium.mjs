@@ -8,6 +8,9 @@ export class CompendiumIndex {
   static #cache = null;
   static #loading = null;
 
+  /** What the last load found, for the wizard's "nothing found" panel and the console. */
+  static stats = null;
+
   /** True once every pack has been indexed. */
   static get ready() { return !!this.#cache; }
 
@@ -22,8 +25,8 @@ export class CompendiumIndex {
   static get packs() {
     const allowed = game.settings.get(MODULE_ID, "packs")
       .split(",").map(s => s.trim()).filter(Boolean);
-    return game.packs.filter(p => p.documentName === "Item"
-      && p.visible
+    return game.packs.filter(p => (p.documentName ?? p.metadata?.type) === "Item"
+      && p.visible !== false
       && (!allowed.length || allowed.includes(p.collection)));
   }
 
@@ -40,19 +43,29 @@ export class CompendiumIndex {
   static async #build() {
     const byType = {};
     const started = performance.now();
-    await Promise.all(this.packs.map(async pack => {
+    const packs = this.packs;
+    const stats = { packs: packs.length, read: 0, failed: [], untyped: 0, entries: 0, counts: {}, ms: 0 };
+    await Promise.all(packs.map(async pack => {
       let index;
       try {
-        index = await withTimeout(pack.getIndex({ fields: this.FIELDS }), 20000);
+        index = await withTimeout(pack.getIndex({ fields: this.FIELDS }), 60000);
       } catch(err) {
-        console.warn(`${MODULE_ID} | Skipped compendium ${pack.collection}:`, err?.message ?? err);
-        return;
+        // Retry with the default index fields in case one of ours is rejected.
+        try { index = await withTimeout(pack.getIndex(), 60000); }
+        catch(err2) {
+          stats.failed.push(`${pack.metadata?.label ?? pack.collection}: ${err2?.message ?? err2}`);
+          console.warn(`${MODULE_ID} | Skipped compendium ${pack.collection}:`, err2);
+          return;
+        }
       }
+      stats.read++;
       for ( const e of index ) {
+        const type = e.type;
+        if ( !type ) { stats.untyped++; continue; }
         const entry = {
           uuid: e.uuid ?? `Compendium.${pack.collection}.Item.${e._id}`,
           name: e.name,
-          type: e.type,
+          type,
           img: e.img,
           identifier: e.system?.identifier || slug(e.name),
           classIdentifier: e.system?.classIdentifier ?? "",
@@ -60,14 +73,18 @@ export class CompendiumIndex {
           book: e.system?.source?.book || "",
           level: e.system?.level,
           featType: e.system?.type?.value ?? "",
-          pack: pack.metadata.label,
+          pack: pack.metadata?.label ?? pack.collection,
           key: normalize(e.name)
         };
-        (byType[e.type] ??= []).push(entry);
+        (byType[type] ??= []).push(entry);
+        stats.entries++;
       }
     }));
     for ( const list of Object.values(byType) ) list.sort((a, b) => a.name.localeCompare(b.name));
-    console.log(`${MODULE_ID} | Indexed ${this.packs.length} compendiums in ${Math.round(performance.now() - started)} ms`);
+    for ( const t of ["class", "subclass", "race", "background", "feat", "spell"] ) stats.counts[t] = byType[t]?.length ?? 0;
+    stats.ms = Math.round(performance.now() - started);
+    this.stats = stats;
+    console.log(`${MODULE_ID} | Read ${stats.read}/${stats.packs} Item compendiums (${stats.entries} entries) in ${stats.ms} ms`, stats);
     return byType;
   }
 
@@ -121,7 +138,9 @@ export class CompendiumIndex {
 }
 
 function withTimeout(promise, ms) {
-  return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), ms))]);
+  let timer;
+  const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("timed out")), ms); });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
 function sortedWords(key) { return key.split(" ").sort().join(" "); }

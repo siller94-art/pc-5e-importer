@@ -6,13 +6,13 @@ Works with **2014 (5e)** and **2024 (5.5e)** content, using the classes, species
 
 ## Features
 
-**Import a PC** — the *Import PC* button at the top of the Actors sidebar opens a five-step wizard:
+**Import a PC** — the *Import PC* button at the top of the Actors sidebar opens a step-by-step window. Your character's name and the rules switch (**Both / 2014 / 2024**) sit at the top; each step shows what you picked.
 
-1. **Paste** — paste a character sheet and press *Read sheet*. Recognised lines fill in the other tabs. Skip this tab to build from scratch.
-2. **Species, Background & Class** — pick from the classes, species and backgrounds in your world, labeled 2014 or 2024. Import at level 1, set a higher level, or add multiclass rows.
-3. **Ability Scores** — Standard Array, Point Buy (27 points) or Manual/Rolled. Your class's primary abilities are starred.
-4. **Items & Traits** — extra feats, equipment, spells and proficiencies not already granted by your choices.
-5. **Review** — shows what was found in which compendium, what will become a placeholder, and the rules version detected.
+1. **Paste** — paste a character sheet and press *Read sheet* to fill everything in, or build step by step.
+2. **Species** · 3. **Background** · 4. **Class** — click an option in the list (search box on top, each row shows the source and a 2014/2024 badge) and its full description appears beside it. On Class, set the level with +/−, add multiclass slots, and pick a subclass once the class reaches the level that grants it (subclasses are matched to the class's rules version).
+5. **Abilities** — Standard Array (picking a value swaps it with the ability that had it), Point Buy with +/− and a points counter, or Manual. Your class's primary abilities are starred.
+6. **Items & Traits** — click skills once for proficient, twice for expertise. Feats, spells, equipment, languages, tools, armor and weapons: type to search and press Enter to add a chip; × removes it.
+7. **Review** — everything that will be created, what was found where, and what becomes a placeholder. Click a card to jump back and change it.
 
 *Create character* then runs the dnd5e advancement flow for each item in order — species → background → class → subclass → feats — so hit points, ability increases, skill and feat choices, subclass picks and spells follow each item's own rules, the same as dropping it on a sheet.
 

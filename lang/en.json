@@ -5,12 +5,14 @@
     "DefaultName": "New Character",
     "Tab": {
       "paste": "Paste",
-      "identity": "Species, Background & Class",
-      "abilities": "Ability Scores",
+      "species": "Species",
+      "background": "Background",
+      "class": "Class",
+      "abilities": "Abilities",
       "extras": "Items & Traits",
       "review": "Review"
     },
-    "PasteHint": "Paste a character sheet (labelled lines like \"Species: Wood Elf\", \"Class: Wizard 1\", \"STR 8 DEX 14 …\", \"Skills: Arcana, History\", \"Equipment: …\", \"Spells: …\"). Everything it recognises is filled in on the other tabs for you to check.",
+    "PasteHint": "Paste a character sheet and press Read sheet — everything it recognises is filled in for you. Or build the character step by step.",
     "PastePlaceholder": "Name: Tyrla\nRules: 2024\nSpecies: Elf\nBackground: Sage\nClass: Wizard 1\nSTR 8 DEX 14 CON 13 INT 15 WIS 12 CHA 10\nSkills: Arcana, History, Insight*\nLanguages: Common, Elvish, Draconic\nFeats: Magic Initiate\nEquipment: Quarterstaff, Spellbook, 2 Daggers\nSpells: Fire Bolt, Light, Mage Hand; 1st: Magic Missile, Shield\nCurrency: 5 gp",
     "PasteSkip": "Or skip this tab and build the character step by step.",
     "PasteEmpty": "Paste some character text first.",
@@ -19,9 +21,9 @@
     "Name": "Name",
     "RulesLabel": "Rules",
     "Rules": {
-      "any": "Both 2014 and 2024",
-      "2014": "2014 (5e)",
-      "2024": "2024 (5.5e)"
+      "any": "Both",
+      "2014": "2014",
+      "2024": "2024"
     },
     "Species": "Species",
     "Background": "Background",
@@ -49,7 +51,7 @@
     "ArrayInvalid": "Use each Standard Array value exactly once.",
     "FinalScores": "These are final scores (overwrite after species/background bonuses)",
     "AbilityHint": "Enter base scores. Species (2014) or background (2024) increases are applied by the advancement step. Pasted scores are treated as final.",
-    "ExtrasHint": "Comma or line separated. Items granted by your class, species, background or chosen during advancement are added automatically — list only extras here. Mark expertise in skills with *.",
+    "ExtrasHint": "Only add extras here. Anything your species, background and class give is added automatically when the character is created.",
     "Feats": "Extra feats",
     "Equipment": "Equipment",
     "Spells": "Spells",
@@ -110,6 +112,33 @@
         "hint": "Show a Level Up button next to the rest buttons on character sheets."
       }
     },
-    "Loading": "Loading classes, species and backgrounds…"
+    "Loading": "Loading classes, species and backgrounds…",
+    "EmptyTitle": "No classes, species or backgrounds were found.",
+    "EmptyHint": "The importer reads the D&D 5e system's built-in SRD compendiums (Classes, Races, Backgrounds, Character Classes, Character Origins). Check they appear in the Compendium sidebar, then press Reload lists.",
+    "EmptyStats": "Compendiums read / Item compendiums · entries · entries without a type",
+    "ReloadLists": "Reload lists",
+    "Found": "Found",
+    "FoundClasses": "classes",
+    "FoundSpecies": "species",
+    "FoundBackgrounds": "backgrounds",
+    "Pick": {
+      "species": "Pick a species to see its traits.",
+      "background": "Pick a background to see what it grants.",
+      "class": "Pick a class to see its features.",
+      "subclass": "Pick a subclass, or choose it later when the class asks for it."
+    },
+    "Search": "Search…",
+    "NoMatch": "Nothing matches that search.",
+    "ChooseLater": "Choose during level-up",
+    "NamePlaceholder": "Character name",
+    "BuildInstead": "Build step by step instead",
+    "SubclassAt": "Subclass at level",
+    "SubclassLocked": "unlocks at level",
+    "SubclassLockedHint": "Raise the level above to pick a subclass now, or leave it — the level-up that grants it will ask.",
+    "ArraySwapHint": "Pick a value — the ability that had it swaps with this one.",
+    "SkillHint": "Click once for proficient, twice for expertise, again to clear.",
+    "TypeToAdd": "Type to search, Enter to add",
+    "NotChosen": "Not chosen",
+    "ChooseLaterHint": "The class asks for it when you reach that level"
   }
 }

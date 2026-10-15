@@ -1,8 +1,72 @@
+{{#*inline "pcimpPicker"}}
+<div class="pcimp-picker">
+  <div class="pcimp-picker-list">
+    <div class="pcimp-search-row">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" class="pcimp-search" data-kind="{{picker.kind}}" placeholder="{{localize 'PCIMP.Search'}}" autocomplete="off">
+      <span class="hint">{{picker.count}}</span>
+    </div>
+    <div class="pcimp-cards" data-kind="{{picker.kind}}">
+      {{#if laterCard}}
+      <button type="button" class="pcimp-card pcimp-card-later {{#if laterSelected}}selected{{/if}}" data-action="pick" data-field="{{picker.field}}" data-uuid="">
+        <span class="pcimp-card-icon"><i class="fa-solid fa-hourglass-half"></i></span>
+        <span class="pcimp-card-text"><span class="pcimp-card-name">{{localize "PCIMP.ChooseLater"}}</span>
+          <span class="pcimp-card-source">{{localize "PCIMP.ChooseLaterHint"}}</span></span>
+        <i class="pcimp-card-check fa-{{#if laterSelected}}solid fa-circle-check{{else}}regular fa-circle{{/if}}"></i>
+      </button>
+      {{/if}}
+      {{#each picker.cards}}
+      <button type="button" class="pcimp-card {{#if selected}}selected{{/if}}" data-action="pick" data-field="{{../picker.field}}"
+        data-uuid="{{uuid}}" data-search="{{search}}">
+        <img src="{{img}}" alt="" loading="lazy">
+        <span class="pcimp-card-text">
+          <span class="pcimp-card-name">{{name}}</span>
+          <span class="pcimp-card-source">{{pack}}</span>
+        </span>
+        {{#if rules}}<span class="pcimp-rules r{{rules}}">{{rules}}</span>{{/if}}
+        <i class="pcimp-card-check fa-{{#if selected}}solid fa-circle-check{{else}}regular fa-circle{{/if}}"></i>
+      </button>
+      {{/each}}
+    </div>
+    <p class="pcimp-nomatch hint" data-kind="{{picker.kind}}" hidden>{{localize "PCIMP.NoMatch"}}</p>
+  </div>
+  <aside class="pcimp-detail">
+    {{#if picker.chosen}}
+    <header class="pcimp-detail-head">
+      <img src="{{picker.chosen.img}}" alt="">
+      <div>
+        <h3>{{picker.chosen.name}}</h3>
+        <span class="hint">{{#if picker.chosen.rules}}<span class="pcimp-rules r{{picker.chosen.rules}}">{{picker.chosen.rules}}</span> {{/if}}{{picker.chosen.pack}}</span>
+      </div>
+    </header>
+    {{#if picker.chosen.facts.length}}
+    <dl class="pcimp-facts">{{#each picker.chosen.facts}}<dt>{{localize label}}</dt><dd>{{value}}</dd>{{/each}}</dl>
+    {{/if}}
+    <div class="pcimp-desc">{{{picker.chosen.description}}}</div>
+    {{else}}
+    <div class="pcimp-detail-empty"><i class="fa-solid fa-hand-pointer"></i><p>{{localize picker.title}}</p></div>
+    {{/if}}
+  </aside>
+</div>
+{{/inline}}
+
 <div class="pcimp-shell">
+  <header class="pcimp-head">
+    <label class="pcimp-name"><i class="fa-solid fa-signature"></i>
+      <input type="text" name="name" value="{{state.name}}" placeholder="{{localize 'PCIMP.NamePlaceholder'}}">
+    </label>
+    <div class="pcimp-seg" role="group" aria-label="{{localize 'PCIMP.RulesLabel'}}">
+      {{#each rulesButtons}}
+      <button type="button" class="{{#if active}}active{{/if}}" data-action="setRules" data-rules="{{value}}">{{localize label}}</button>
+      {{/each}}
+    </div>
+  </header>
+
   <nav class="pcimp-tabs">
     {{#each tabs}}
-    <button type="button" class="pcimp-tab {{#if active}}active{{/if}}" data-action="tab" data-tab="{{id}}">
-      <span class="pcimp-step">{{number}}</span> {{localize label}}
+    <button type="button" class="pcimp-tab {{#if active}}active{{/if}} {{#if done}}done{{/if}}" data-action="tab" data-tab="{{id}}">
+      <span class="pcimp-step">{{#if done}}<i class="fa-solid fa-check"></i>{{else}}{{number}}{{/if}}</span>
+      <span class="pcimp-tab-text"><span>{{localize label}}</span>{{#if picked}}<small>{{picked}}</small>{{/if}}</span>
     </button>
     {{/each}}
   </nav>
@@ -12,14 +76,24 @@
     <div class="pcimp-loading"><i class="fa-solid fa-spinner fa-spin"></i> {{localize "PCIMP.Loading"}}</div>
     {{else}}
 
+    {{#if found.none}}
+    <div class="pcimp-empty">
+      <p><i class="fa-solid fa-triangle-exclamation"></i> <strong>{{localize "PCIMP.EmptyTitle"}}</strong></p>
+      <p>{{localize "PCIMP.EmptyHint"}}</p>
+      <p class="hint">{{localize "PCIMP.EmptyStats"}}: {{found.stats.read}} / {{found.stats.packs}} · {{found.stats.entries}} · {{found.stats.untyped}}</p>
+      {{#each found.failed}}<p class="hint">{{this}}</p>{{/each}}
+      <button type="button" data-action="reloadLists"><i class="fa-solid fa-rotate"></i> {{localize "PCIMP.ReloadLists"}}</button>
+    </div>
+    {{/if}}
+
     {{!-- ───────────── Paste ───────────── --}}
     {{#if tab.paste}}
     <section>
       <p class="hint">{{localize "PCIMP.PasteHint"}}</p>
-      <textarea name="paste" rows="18" spellcheck="false" placeholder="{{localize 'PCIMP.PastePlaceholder'}}">{{state.paste}}</textarea>
+      <textarea name="paste" rows="16" spellcheck="false" placeholder="{{localize 'PCIMP.PastePlaceholder'}}">{{state.paste}}</textarea>
       <div class="pcimp-row">
         <button type="button" data-action="parse"><i class="fa-solid fa-wand-magic-sparkles"></i> {{localize "PCIMP.Parse"}}</button>
-        <span class="hint">{{localize "PCIMP.PasteSkip"}}</span>
+        <button type="button" data-action="next">{{localize "PCIMP.BuildInstead"}} <i class="fa-solid fa-chevron-right"></i></button>
       </div>
       {{#if state.parseWarnings.length}}
       <ul class="pcimp-warnings">{{#each state.parseWarnings}}<li><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</li>{{/each}}</ul>
@@ -27,67 +101,65 @@
     </section>
     {{/if}}
 
-    {{!-- ───────────── Identity ───────────── --}}
-    {{#if tab.identity}}
-    <section class="pcimp-grid">
-      <label>{{localize "PCIMP.Name"}}<input type="text" name="name" value="{{state.name}}"></label>
-      <label>{{localize "PCIMP.RulesLabel"}}
-        <select name="rules">{{#each rulesOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>{{/each}}</select>
-      </label>
-      <label>{{localize "PCIMP.Species"}}
-        <select name="speciesUuid"><option value="">—</option>
-          {{#each speciesOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
-        </select>
-      </label>
-      <label>{{localize "PCIMP.Background"}}
-        <select name="backgroundUuid"><option value="">—</option>
-          {{#each backgroundOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
-        </select>
-      </label>
-    </section>
+    {{!-- ───────────── Species / Background ───────────── --}}
+    {{#if tab.species}}{{> pcimpPicker picker=picker}}{{/if}}
+    {{#if tab.background}}{{> pcimpPicker picker=picker}}{{/if}}
 
-    <h3>{{localize "PCIMP.Classes"}}</h3>
-    {{#each classRows}}
-    <div class="pcimp-class-row">
-      <select name="classes.{{index}}.uuid"><option value="">{{localize "PCIMP.PickClass"}}</option>
-        {{#each classOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
-      </select>
-      <select name="classes.{{index}}.subclassUuid" {{#unless subclassOptions.length}}disabled{{/unless}}>
-        <option value="">{{localize "PCIMP.SubclassLater"}}</option>
-        {{#each subclassOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
-      </select>
-      <label class="pcimp-level">{{localize "PCIMP.Level"}}<input type="number" min="1" max="20" name="classes.{{index}}.levels" value="{{levels}}"></label>
-      {{#unless first}}<button type="button" class="icon" data-action="removeClass" data-index="{{index}}" data-tooltip="PCIMP.Remove"><i class="fa-solid fa-trash"></i></button>{{/unless}}
-      {{#if hd}}<div class="hint pcimp-class-info">{{localize "PCIMP.HitDie"}} {{hd}}{{#if primary}} · {{localize "PCIMP.Primary"}} {{primary}}{{/if}}</div>{{/if}}
+    {{!-- ───────────── Class ───────────── --}}
+    {{#if tab.class}}
+    <div class="pcimp-class-bar">
+      <div class="pcimp-slots">
+        {{#each classSlots}}
+        <span class="pcimp-slot {{#if active}}active{{/if}}">
+          <button type="button" data-action="setActiveClass" data-index="{{index}}">{{label}}</button>
+          {{#if removable}}<button type="button" class="pcimp-x" data-action="removeClass" data-index="{{index}}" data-tooltip="PCIMP.Remove"><i class="fa-solid fa-xmark"></i></button>{{/if}}
+        </span>
+        {{/each}}
+        <button type="button" class="pcimp-add" data-action="addClass"><i class="fa-solid fa-plus"></i> {{localize "PCIMP.AddClass"}}</button>
+      </div>
+      <div class="pcimp-stepper">
+        <span>{{localize "PCIMP.Level"}}</span>
+        <button type="button" data-action="levelStep" data-delta="-1" {{#unless canDown}}disabled{{/unless}} aria-label="-"><i class="fa-solid fa-minus"></i></button>
+        <input type="number" name="classLevel" min="1" max="20" value="{{activeLevel}}">
+        <button type="button" data-action="levelStep" data-delta="1" {{#unless canUp}}disabled{{/unless}} aria-label="+"><i class="fa-solid fa-plus"></i></button>
+      </div>
     </div>
-    {{/each}}
-    <button type="button" data-action="addClass"><i class="fa-solid fa-plus"></i> {{localize "PCIMP.AddClass"}}</button>
-    <p class="hint">{{localize "PCIMP.ClassHint"}}</p>
-    {{#unless packCount}}<p class="pcimp-warnings">{{localize "PCIMP.NoPacks"}}</p>{{/unless}}
+    {{> pcimpPicker picker=picker}}
+    {{#if subclass}}
+    <h3 class="pcimp-sub-title">{{localize "PCIMP.Subclass"}}
+      {{#if subclass.locked}}<span class="hint">— {{localize "PCIMP.SubclassLocked"}} {{subclass.unlockLevel}}</span>{{/if}}</h3>
+    {{#if subclass.locked}}
+    <p class="hint">{{localize "PCIMP.SubclassLockedHint"}}</p>
+    {{else}}
+    {{> pcimpPicker picker=subclass laterCard=true laterSelected=subclass.later}}
+    {{/if}}
+    {{/if}}
     {{/if}}
 
     {{!-- ───────────── Abilities ───────────── --}}
     {{#if tab.abilities}}
     <section>
       <div class="pcimp-row">
-        <label>{{localize "PCIMP.Method.label"}}
-          <select name="method">{{#each methodOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{localize label}}</option>{{/each}}</select>
-        </label>
+        <div class="pcimp-seg">
+          {{#each methodButtons}}<button type="button" class="{{#if active}}active{{/if}}" data-action="setMethod" data-method="{{value}}">{{localize label}}</button>{{/each}}
+        </div>
         {{#if method.pointbuy}}<span class="pcimp-points {{#if pointsOver}}over{{/if}}">{{localize "PCIMP.PointsLeft"}}: {{pointsLeft}} / {{pointBuyBudget}}</span>{{/if}}
-        {{#if method.standard}}{{#unless arrayValid}}<span class="pcimp-points over">{{localize "PCIMP.ArrayInvalid"}}</span>{{/unless}}{{/if}}
+        {{#if method.standard}}<span class="hint">{{localize "PCIMP.ArraySwapHint"}}</span>{{/if}}
       </div>
       <div class="pcimp-abilities">
         {{#each abilities}}
         <div class="pcimp-ability {{#if primary}}primary{{/if}}">
           <span class="label">{{label}}{{#if primary}} <i class="fa-solid fa-star" data-tooltip="PCIMP.PrimaryTip"></i>{{/if}}</span>
+          <span class="mod">{{mod}}</span>
           {{#if ../method.standard}}
           <select name="abilities.{{key}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>{{/each}}</select>
-          {{else if ../method.pointbuy}}
-          <input type="number" min="8" max="15" name="abilities.{{key}}" value="{{value}}">
           {{else}}
-          <input type="number" min="1" max="30" name="abilities.{{key}}" value="{{value}}">
+          <div class="pcimp-stepper small">
+            <button type="button" data-action="abilityStep" data-key="{{key}}" data-delta="-1" {{#unless canDown}}disabled{{/unless}} aria-label="-"><i class="fa-solid fa-minus"></i></button>
+            <input type="number" name="abilities.{{key}}" value="{{value}}">
+            <button type="button" data-action="abilityStep" data-key="{{key}}" data-delta="1" {{#unless canUp}}disabled{{/unless}} aria-label="+"><i class="fa-solid fa-plus"></i></button>
+          </div>
           {{/if}}
-          <span class="mod">{{mod}}</span>
         </div>
         {{/each}}
       </div>
@@ -98,27 +170,43 @@
 
     {{!-- ───────────── Items & traits ───────────── --}}
     {{#if tab.extras}}
-    <section class="pcimp-grid">
-      <p class="hint full">{{localize "PCIMP.ExtrasHint"}}</p>
-      <label>{{localize "PCIMP.Feats"}}<textarea name="feats" rows="2">{{state.feats}}</textarea></label>
-      <label>{{localize "PCIMP.Equipment"}}<textarea name="equipment" rows="2">{{state.equipment}}</textarea></label>
-      <label>{{localize "PCIMP.Spells"}}<textarea name="spells" rows="2">{{state.spells}}</textarea></label>
-      <label>{{localize "PCIMP.Skills"}}<textarea name="skills" rows="2">{{state.skills}}</textarea></label>
-      <label>{{localize "PCIMP.Expertise"}}<textarea name="expertise" rows="1">{{state.expertise}}</textarea></label>
-      <label>{{localize "PCIMP.Languages"}}<textarea name="languages" rows="1">{{state.languages}}</textarea></label>
-      <label>{{localize "PCIMP.Tools"}}<textarea name="tools" rows="1">{{state.tools}}</textarea></label>
-      <label>{{localize "PCIMP.Armor"}}<textarea name="armor" rows="1">{{state.armor}}</textarea></label>
-      <label>{{localize "PCIMP.Weapons"}}<textarea name="weapons" rows="1">{{state.weapons}}</textarea></label>
-      <label>{{localize "PCIMP.Senses"}}<input type="text" name="senses" value="{{state.senses}}" placeholder="darkvision 60"></label>
-      <label>{{localize "PCIMP.Currency"}}<input type="text" name="currency" value="{{state.currency}}" placeholder="15 gp, 3 sp"></label>
-    </section>
+    <p class="hint">{{localize "PCIMP.ExtrasHint"}}</p>
+    <h3>{{localize "PCIMP.Skills"}} <span class="hint">{{localize "PCIMP.SkillHint"}}</span></h3>
+    <div class="pcimp-skill-chips">
+      {{#each skills}}
+      <button type="button" class="pcimp-skill {{#if prof}}prof{{/if}} {{#if expert}}expert{{/if}}" data-action="cycleSkill" data-label="{{label}}" data-level="{{level}}">
+        {{#if expert}}<i class="fa-solid fa-star"></i>{{else if prof}}<i class="fa-solid fa-circle"></i>{{else}}<i class="fa-regular fa-circle"></i>{{/if}} {{label}}
+      </button>
+      {{/each}}
+    </div>
+    <div class="pcimp-chip-grid">
+      {{#each chips}}
+      <div class="pcimp-chipbox">
+        <span class="pcimp-chipbox-label">{{localize label}}</span>
+        <div class="pcimp-chips">
+          {{#each values}}<span class="pcimp-chip">{{value}}<button type="button" data-action="removeChip" data-field="{{../field}}" data-index="{{index}}" aria-label="×"><i class="fa-solid fa-xmark"></i></button></span>{{/each}}
+        </div>
+        <div class="pcimp-chip-add">
+          <input type="text" list="{{listId}}" data-chip-add="{{field}}" placeholder="{{localize 'PCIMP.TypeToAdd'}}" autocomplete="off">
+          <button type="button" data-action="addChip" data-field="{{field}}" aria-label="+"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <datalist id="{{listId}}">{{#each options}}<option value="{{this}}"></option>{{/each}}</datalist>
+      </div>
+      {{/each}}
+      <div class="pcimp-chipbox">
+        <span class="pcimp-chipbox-label">{{localize "PCIMP.Senses"}}</span>
+        <input type="text" name="senses" value="{{state.senses}}" placeholder="darkvision 60">
+        <span class="pcimp-chipbox-label">{{localize "PCIMP.Currency"}}</span>
+        <input type="text" name="currency" value="{{state.currency}}" placeholder="15 gp, 3 sp">
+      </div>
+    </div>
     {{/if}}
 
     {{!-- ───────────── Review ───────────── --}}
     {{#if tab.review}}
     <section class="pcimp-review">
       <div class="pcimp-row">
-        <strong>{{state.name}}</strong>
+        <strong>{{#if state.name}}{{state.name}}{{else}}{{localize "PCIMP.DefaultName"}}{{/if}}</strong>
         <span class="pcimp-badge">{{localize "PCIMP.RulesUsed"}}: {{review.rules}}</span>
         <span class="pcimp-badge">{{localize "PCIMP.Level"}} {{preview.level}} · {{localize "PCIMP.Prof"}} {{preview.prof}}{{#if preview.hp1}} · {{localize "PCIMP.HPAt1"}} {{preview.hp1}}{{/if}}</span>
       </div>
@@ -127,12 +215,15 @@
       <ul class="pcimp-warnings">{{#each state.parseWarnings}}<li><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</li>{{/each}}</ul>
       {{/if}}
 
-      <table>
+      <div class="pcimp-review-core">
         {{#each review.core}}
-        <tr class="{{#if missing}}missing{{/if}}"><th>{{localize label}}</th>
-          <td>{{#if missing}}—{{else}}{{name}}{{#if levels}} {{levels}}{{/if}}{{#if entryRules}} <span class="pcimp-badge">{{entryRules}}</span>{{/if}}{{/if}}</td></tr>
+        <button type="button" class="pcimp-review-card {{#if missing}}missing{{/if}}" data-action="tab" data-tab="{{tab}}">
+          {{#if img}}<img src="{{img}}" alt="">{{else}}<i class="fa-solid fa-question"></i>{{/if}}
+          <span><small>{{localize label}}</small>{{#if missing}}{{localize "PCIMP.NotChosen"}}{{else}}{{name}}{{#if levels}} {{levels}}{{/if}}{{/if}}</span>
+          {{#if entryRules}}<span class="pcimp-rules r{{entryRules}}">{{entryRules}}</span>{{/if}}
+        </button>
         {{/each}}
-      </table>
+      </div>
 
       {{#each review.lists}}
       {{#if rows.length}}
@@ -166,7 +257,7 @@
     {{#if isLastTab}}
     <button type="button" class="bright" data-action="create" {{#unless review.canCreate}}disabled{{/unless}}><i class="fa-solid fa-user-check"></i> {{localize "PCIMP.Create"}}</button>
     {{else}}
-    <button type="button" data-action="next">{{localize "PCIMP.Next"}} <i class="fa-solid fa-chevron-right"></i></button>
+    <button type="button" class="bright" data-action="next">{{localize "PCIMP.Next"}} <i class="fa-solid fa-chevron-right"></i></button>
     {{/if}}
   </footer>
 </div>
