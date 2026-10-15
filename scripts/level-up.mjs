@@ -15,7 +15,7 @@ export class LevelUpApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.actor = actor;
     const first = actor.items.find(i => i.type === "class" && i.id === actor.system.details.originalClass)
       ?? actor.items.find(i => i.type === "class");
-    this.state = { mode: first ? "existing" : "new", classId: first?.id ?? "", newClassUuid: "", levels: 1 };
+    this.pc = { mode: first ? "existing" : "new", classId: first?.id ?? "", newClassUuid: "", levels: 1 };
   }
 
   static DEFAULT_OPTIONS = {
@@ -33,7 +33,7 @@ export class LevelUpApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async _prepareContext() {
     const actor = this.actor;
-    const s = this.state;
+    const s = this.pc;
     const owned = actor.items.filter(i => i.type === "class");
     const ownedIds = new Set(owned.map(c => c.identifier ?? c.system.identifier));
     const rules = detectRules(owned.map(c => ({ rules: c.system.source?.rules }))).rules;
@@ -80,17 +80,17 @@ export class LevelUpApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static #onChange(event, form, formData) {
     const d = formData.object;
-    Object.assign(this.state, {
-      mode: d.mode ?? this.state.mode,
-      classId: d.classId ?? this.state.classId,
-      newClassUuid: d.newClassUuid ?? this.state.newClassUuid,
+    Object.assign(this.pc, {
+      mode: d.mode ?? this.pc.mode,
+      classId: d.classId ?? this.pc.classId,
+      newClassUuid: d.newClassUuid ?? this.pc.newClassUuid,
       levels: Math.clamp(Number(d.levels) || 1, 1, 19)
     });
     this.render();
   }
 
   static async #onLevelUp(event, target) {
-    const s = this.state;
+    const s = this.pc;
     const actor = this.actor;
     const room = 20 - (actor.system.details.level ?? 0);
     const levels = Math.min(Number(s.levels) || 1, room);

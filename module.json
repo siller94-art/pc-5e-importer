@@ -2,7 +2,7 @@
   "id": "pc-5e-importer",
   "title": "PC 5/5.5e Importer",
   "description": "Import player characters into the D&D 5e system with a step-by-step wizard or by pasting a character sheet, then level them up. Handles species, backgrounds, classes, subclasses, feats, equipment, spells and traits (skills, languages, tools, armor and weapon proficiencies, senses) for both 2014 and 2024 rules.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "authors": [{ "name": "siller94-art", "url": "https://github.com/siller94-art" }],
   "compatibility": { "minimum": "14", "verified": "14" },
   "relationships": {

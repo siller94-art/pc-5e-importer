@@ -15,7 +15,7 @@ const LIST_FIELDS = ["skills", "expertise", "languages", "tools", "armor", "weap
 export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(options={}) {
     super(options);
-    this.state = PCImporterWizard.blankState(options.initialName);
+    this.pc = PCImporterWizard.blankState(options.initialName);
     this.classInfo = {};
   }
 
@@ -58,10 +58,10 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
 
   /* ------------------------------------------------------------ */
 
-  get rulesFilter() { return this.state.rules; }
+  get rulesFilter() { return this.pc.rules; }
 
   async _prepareContext() {
-    const s = this.state;
+    const s = this.pc;
     if ( !CompendiumIndex.ready ) {
       // Open the window straight away; fill it in once the compendiums are indexed.
       CompendiumIndex.load()
@@ -162,7 +162,7 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
 
   /** Resolve everything the way the importer will, so the user can see what will and won't land. */
   async #review(byUuid) {
-    const s = this.state;
+    const s = this.pc;
     const picked = [byUuid.get(s.speciesUuid), byUuid.get(s.backgroundUuid),
       ...s.classes.flatMap(c => [byUuid.get(c.uuid), byUuid.get(c.subclassUuid)])];
     const { rules, mixed } = s.rules === "any" ? detectRules(picked) : { rules: s.rules, mixed: false };
@@ -205,7 +205,7 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
 
   /** Turn wizard state into the importer's build object. */
   toBuild(rules) {
-    const s = this.state;
+    const s = this.pc;
     const list = f => String(s[f] ?? "").split(/[\n,;]+/).map(x => x.trim()).filter(Boolean);
     const senses = {};
     for ( const part of list("senses") ) {
@@ -235,7 +235,7 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
 
   async applyPaste(text) {
     const p = parseCharacter(text);
-    const s = this.state;
+    const s = this.pc;
     const warnings = [...p.warnings];
     if ( p.rules ) s.rules = p.rules;
     const rules = p.rules || (s.rules === "any" ? defaultRules() : s.rules);
@@ -286,7 +286,7 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static async #onChange(event, form, formData) {
     const data = foundry.utils.expandObject(formData.object);
-    const s = this.state;
+    const s = this.pc;
     for ( const k of ["paste", "name", "img", "rules", "speciesUuid", "backgroundUuid", "method",
       "senses", "currency", ...LIST_FIELDS] ) {
       if ( k in data ) s[k] = data[k] ?? "";
@@ -313,28 +313,28 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
     if ( event?.target?.name !== "paste" ) this.render();
   }
 
-  static #onTab(event, target) { this.state.tab = target.dataset.tab; this.render(); }
-  static #onNext() { this.state.tab = TABS[Math.min(TABS.indexOf(this.state.tab) + 1, TABS.length - 1)]; this.render(); }
-  static #onPrev() { this.state.tab = TABS[Math.max(TABS.indexOf(this.state.tab) - 1, 0)]; this.render(); }
+  static #onTab(event, target) { this.pc.tab = target.dataset.tab; this.render(); }
+  static #onNext() { this.pc.tab = TABS[Math.min(TABS.indexOf(this.pc.tab) + 1, TABS.length - 1)]; this.render(); }
+  static #onPrev() { this.pc.tab = TABS[Math.max(TABS.indexOf(this.pc.tab) - 1, 0)]; this.render(); }
 
   static async #onParse() {
-    const text = this.element.querySelector("textarea[name=paste]")?.value ?? this.state.paste;
-    this.state.paste = text;
+    const text = this.element.querySelector("textarea[name=paste]")?.value ?? this.pc.paste;
+    this.pc.paste = text;
     if ( !text.trim() ) return ui.notifications.warn(game.i18n.localize("PCIMP.PasteEmpty"));
     await this.applyPaste(text);
     this.render();
   }
 
-  static #onAddClass() { this.state.classes.push({ uuid: "", subclassUuid: "", levels: 1 }); this.render(); }
+  static #onAddClass() { this.pc.classes.push({ uuid: "", subclassUuid: "", levels: 1 }); this.render(); }
   static #onRemoveClass(event, target) {
-    this.state.classes.splice(Number(target.dataset.index), 1);
-    if ( !this.state.classes.length ) this.state.classes.push({ uuid: "", subclassUuid: "", levels: 1 });
+    this.pc.classes.splice(Number(target.dataset.index), 1);
+    if ( !this.pc.classes.length ) this.pc.classes.push({ uuid: "", subclassUuid: "", levels: 1 });
     this.render();
   }
-  static #onReset() { this.state = PCImporterWizard.blankState(); this.render(); }
+  static #onReset() { this.pc = PCImporterWizard.blankState(); this.render(); }
 
   static async #onCreate(event, target) {
-    const s = this.state;
+    const s = this.pc;
     if ( !s.classes[0]?.uuid ) return ui.notifications.warn(game.i18n.localize("PCIMP.NeedClass"));
     if ( s.method === "standard" && !s.finalScores ) {
       const used = ABILITIES.map(a => Number(s.abilities[a]));
