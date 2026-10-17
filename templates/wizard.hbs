@@ -89,6 +89,16 @@
     {{!-- ───────────── Paste ───────────── --}}
     {{#if tab.paste}}
     <section>
+      <div class="pcimp-drop {{#if state.reading}}busy{{/if}}" data-drop>
+        <i class="fa-solid {{#if state.reading}}fa-spinner fa-spin{{else}}fa-file-pdf{{/if}} pcimp-drop-icon"></i>
+        <div class="pcimp-drop-text">
+          <strong>{{#if state.reading}}{{localize "PCIMP.Pdf.Reading"}}{{else}}{{localize "PCIMP.Pdf.Drop"}}{{/if}}</strong>
+          <span class="hint">{{localize "PCIMP.Pdf.Hint"}}</span>
+        </div>
+        <button type="button" data-action="uploadFile" {{#if state.reading}}disabled{{/if}}><i class="fa-solid fa-upload"></i> {{localize "PCIMP.Pdf.Upload"}}</button>
+        <input type="file" accept=".pdf,application/pdf,.txt,text/plain" hidden data-file>
+      </div>
+      {{#if state.fileNote}}<p class="pcimp-filenote"><i class="fa-solid fa-circle-check"></i> {{state.fileNote}}</p>{{/if}}
       <p class="hint">{{localize "PCIMP.PasteHint"}}</p>
       <textarea name="paste" rows="16" spellcheck="false" placeholder="{{localize 'PCIMP.PastePlaceholder'}}">{{state.paste}}</textarea>
       <div class="pcimp-row">
@@ -210,6 +220,7 @@
         <span class="pcimp-badge">{{localize "PCIMP.RulesUsed"}}: {{review.rules}}</span>
         <span class="pcimp-badge">{{localize "PCIMP.Level"}} {{preview.level}} · {{localize "PCIMP.Prof"}} {{preview.prof}}{{#if preview.hp1}} · {{localize "PCIMP.HPAt1"}} {{preview.hp1}}{{/if}}</span>
       </div>
+      {{#if state.fileNote}}<p class="pcimp-filenote"><i class="fa-solid fa-file-pdf"></i> {{state.fileNote}} <a data-action="tab" data-tab="paste">{{localize "PCIMP.Pdf.SeeText"}}</a></p>{{/if}}
       {{#if review.mixed}}<p class="pcimp-warnings"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "PCIMP.MixedRules"}}</p>{{/if}}
       {{#if state.parseWarnings.length}}
       <ul class="pcimp-warnings">{{#each state.parseWarnings}}<li><i class="fa-solid fa-triangle-exclamation"></i> {{this}}</li>{{/each}}</ul>

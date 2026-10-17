@@ -8,7 +8,7 @@ Works with **2014 (5e)** and **2024 (5.5e)** content, using the classes, species
 
 **Import a PC** — the *Import PC* button at the top of the Actors sidebar opens a step-by-step window. Your character's name and the rules switch (**Both / 2014 / 2024**) sit at the top; each step shows what you picked.
 
-1. **Paste** — paste a character sheet and press *Read sheet* to fill everything in, or build step by step.
+1. **Paste / Upload** — drop a character-sheet **PDF** (or press *Upload PDF*), or paste a sheet and press *Read sheet*, to fill everything in. Or build step by step.
 2. **Species** · 3. **Background** · 4. **Class** — click an option in the list (search box on top, each row shows the source and a 2014/2024 badge) and its full description appears beside it. On Class, set the level with +/−, add multiclass slots, and pick a subclass once the class reaches the level that grants it (subclasses are matched to the class's rules version).
 5. **Abilities** — Standard Array (picking a value swaps it with the ability that had it), Point Buy with +/− and a points counter, or Manual. Your class's primary abilities are starred.
 6. **Items & Traits** — click skills once for proficient, twice for expertise. Feats, spells, equipment, languages, tools, armor and weapons: type to search and press Enter to add a chip; × removes it.
@@ -17,6 +17,18 @@ Works with **2014 (5e)** and **2024 (5.5e)** content, using the classes, species
 *Create character* then runs the dnd5e advancement flow for each item in order — species → background → class → subclass → feats — so hit points, ability increases, skill and feat choices, subclass picks and spells follow each item's own rules, the same as dropping it on a sheet.
 
 **Level up** — a ⏫ button appears next to the short/long rest buttons on every character sheet (also in the sheet's header menu). Level an existing class or multiclass into a new one, with a preview of character level, proficiency bonus, hit die, average HP and ASI levels, plus multiclass ability-requirement warnings.
+
+## PDF character sheets
+
+Drop a PDF on the Paste step or press **Upload PDF**. It's read inside Foundry — nothing is sent anywhere.
+
+- **Fillable sheets** — the official 5e character sheet, D&D Beyond PDF exports and most form-fillable sheets are read from their form fields: name, species, background, class & level, ability scores, skills and expertise (D&D Beyond), proficiencies and languages, senses, feats, equipment with quantities, spells and coins.
+- **Text PDFs** — anything else with selectable text is read line by line, using the paste format below.
+- **Scans / photos** have no text to read; type or paste those instead.
+
+The text read from the PDF is put in the paste box so you can check or fix it and press *Read sheet* again. If a sheet just says "Elf" and your world has several elf species, you'll be asked to pick one. A species that only exists in one ruleset (e.g. Half-Orc, 2014) makes the rest of that sheet use the same rules.
+
+PDF reading uses [pdf.js](https://github.com/mozilla/pdf.js) by Mozilla (Apache 2.0), bundled in `lib/pdfjs`.
 
 ## Paste format
 

@@ -165,9 +165,14 @@ export function slug(s) {
 
 /** Work out which rules version a set of compendium entries belongs to. */
 export function detectRules(entries) {
-  const found = new Set(entries.filter(Boolean).map(e => e.rules).filter(Boolean));
-  if ( found.size === 1 ) return { rules: [...found][0], mixed: false };
-  if ( found.size > 1 ) return { rules: found.has("2024") ? "2024" : "2014", mixed: true };
+  const list = entries.filter(Boolean).map(e => e.rules).filter(Boolean);
+  const found = new Set(list);
+  if ( found.size === 1 ) return { rules: list[0], mixed: false };
+  if ( found.size > 1 ) {
+    // Mixed picks: follow the majority; a tie goes to 2024.
+    const n14 = list.filter(r => r === "2014").length, n24 = list.filter(r => r === "2024").length;
+    return { rules: n14 > n24 ? "2014" : "2024", mixed: true };
+  }
   return { rules: defaultRules(), mixed: false };
 }
 

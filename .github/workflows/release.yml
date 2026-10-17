@@ -45,7 +45,7 @@ jobs:
 
       - name: Zip module
         if: steps.ver.outputs.skip != 'true'
-        run: zip -r module.zip module.json README.md scripts templates styles lang
+        run: zip -r module.zip module.json README.md scripts templates styles lang lib
 
       - name: Publish release
         if: steps.ver.outputs.skip != 'true'

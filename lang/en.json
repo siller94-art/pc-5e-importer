@@ -12,7 +12,7 @@
       "extras": "Items & Traits",
       "review": "Review"
     },
-    "PasteHint": "Paste a character sheet and press Read sheet — everything it recognises is filled in for you. Or build the character step by step.",
+    "PasteHint": "Or paste a character sheet below and press Read sheet — everything it recognises is filled in for you. You can also build the character step by step.",
     "PastePlaceholder": "Name: Tyrla\nRules: 2024\nSpecies: Elf\nBackground: Sage\nClass: Wizard 1\nSTR 8 DEX 14 CON 13 INT 15 WIS 12 CHA 10\nSkills: Arcana, History, Insight*\nLanguages: Common, Elvish, Draconic\nFeats: Magic Initiate\nEquipment: Quarterstaff, Spellbook, 2 Daggers\nSpells: Fire Bolt, Light, Mage Hand; 1st: Magic Missile, Shield\nCurrency: 5 gp",
     "PasteSkip": "Or skip this tab and build the character step by step.",
     "PasteEmpty": "Paste some character text first.",
@@ -139,6 +139,20 @@
     "SkillHint": "Click once for proficient, twice for expertise, again to clear.",
     "TypeToAdd": "Type to search, Enter to add",
     "NotChosen": "Not chosen",
-    "ChooseLaterHint": "The class asks for it when you reach that level"
+    "ChooseLaterHint": "The class asks for it when you reach that level",
+    "Pdf": {
+      "Drop": "Drop a character sheet PDF here",
+      "Hint": "Fillable sheets (the official 5e sheet, D&D Beyond exports) and text PDFs work. A .txt file works too.",
+      "Upload": "Upload PDF",
+      "Reading": "Reading the sheet…",
+      "ReadForm": "Read {file} ({pages} page(s), from the sheet's form fields). Check the text below — you can edit it and press Read sheet again.",
+      "ReadText": "Read {file} ({pages} page(s), from its text). Check the text below — you can edit it and press Read sheet again.",
+      "SeeText": "See the text",
+      "Empty": "That PDF has no readable text or form fields — it may be a scan or a photo. Type or paste the details instead.",
+      "WrongType": "Choose a PDF or a .txt file.",
+      "TooBig": "That file is over 25 MB.",
+      "Failed": "Couldn't read {file}. Check the console (F12) for details."
+    },
+    "Ambiguous": "\"{name}\" could be {options} — pick one on the {step} step."
   }
 }

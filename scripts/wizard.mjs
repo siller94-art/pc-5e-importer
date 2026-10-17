@@ -1,7 +1,8 @@
 import { MODULE_ID, ABILITIES, STANDARD_ARRAY, POINT_BUY_COST, POINT_BUY_BUDGET } from "./constants.mjs";
-import { CompendiumIndex, detectRules, defaultRules } from "./compendium.mjs";
+import { CompendiumIndex, detectRules, defaultRules, normalize } from "./compendium.mjs";
 import { parseCharacter, parseQuantity } from "./parser.mjs";
 import { importCharacter } from "./importer.mjs";
+import { readCharacterPdf, logPdf } from "./pdf-reader.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -65,6 +66,7 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
     actions: {
       tab: PCImporterWizard.#onTab,
       parse: PCImporterWizard.#onParse,
+      uploadFile: PCImporterWizard.#onUploadFile,
       next: PCImporterWizard.#onNext,
       prev: PCImporterWizard.#onPrev,
       setRules: PCImporterWizard.#onSetRules,
@@ -390,6 +392,31 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
     const root = this.element;
     if ( !root ) return;
 
+    // PDF / text upload: button, file picker and drag-and-drop.
+    const fileInput = root.querySelector("input[data-file]");
+    fileInput?.addEventListener("change", () => {
+      const file = fileInput.files?.[0];
+      fileInput.value = "";
+      if ( file ) this.readFile(file);
+    });
+    for ( const zone of root.querySelectorAll("[data-drop], textarea[name=paste]") ) {
+      zone.addEventListener("dragover", ev => {
+        if ( !ev.dataTransfer?.types?.includes("Files") ) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        root.querySelector("[data-drop]")?.classList.add("over");
+      });
+      zone.addEventListener("dragleave", () => root.querySelector("[data-drop]")?.classList.remove("over"));
+      zone.addEventListener("drop", ev => {
+        const file = ev.dataTransfer?.files?.[0];
+        if ( !file ) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        root.querySelector("[data-drop]")?.classList.remove("over");
+        this.readFile(file);
+      });
+    }
+
     // Live search over the cards, without re-rendering.
     for ( const input of root.querySelectorAll(".pcimp-search") ) {
       const grid = root.querySelector(`.pcimp-cards[data-kind="${input.dataset.kind}"]`);
@@ -447,13 +474,24 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
     const s = this.pc;
     const warnings = [...p.warnings];
     if ( p.rules ) s.rules = p.rules;
-    const rules = p.rules || (s.rules === "any" ? defaultRules() : s.rules);
+    let rules = p.rules || (s.rules === "any" ? defaultRules() : s.rules);
     if ( p.name ) s.name = p.name;
 
     if ( p.species ) {
-      const hit = await CompendiumIndex.find("race", p.species, rules)
-        ?? await CompendiumIndex.find("race", p.species.split(/\s+/).at(-1), rules);
-      if ( hit ) s.speciesUuid = hit.uuid; else warnings.push(game.i18n.format("PCIMP.NotFound", { type: "species", name: p.species }));
+      // "Elf" with no lineage could be several species (Elf, Drow / High / Wood): ask instead of guessing.
+      const options = await ambiguous("race", p.species, rules);
+      if ( options.length > 1 ) {
+        warnings.push(game.i18n.format("PCIMP.Ambiguous", { name: p.species, options: options.join(", "), step: game.i18n.localize("PCIMP.Tab.species") }));
+      } else {
+        const hit = await CompendiumIndex.find("race", p.species, rules)
+          ?? await CompendiumIndex.find("race", p.species.split(/\s+/).at(-1), rules);
+        if ( hit ) {
+          s.speciesUuid = hit.uuid;
+          // A species that only exists in one ruleset (e.g. Half-Orc, 2014) sets the rules for the rest of the sheet.
+          if ( !p.rules && s.rules === "any" && hit.rules && hit.rules !== rules ) rules = hit.rules;
+        }
+        else warnings.push(game.i18n.format("PCIMP.NotFound", { type: "species", name: p.species }));
+      }
     }
     if ( p.background ) {
       const hit = await CompendiumIndex.find("background", p.background, rules);
@@ -496,7 +534,8 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
 
   static async #onChange(event, form, formData) {
     const target = event?.target;
-    // Search boxes and chip inputs handle themselves.
+    // File picker, search boxes and chip inputs handle themselves.
+    if ( target?.type === "file" ) return;
     if ( target?.classList?.contains("pcimp-search") ) return;
     if ( target?.dataset?.chipAdd ) return this.#addChip(target.dataset.chipAdd, target.value);
 
@@ -608,6 +647,52 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
     this.render();
   }
 
+  static #onUploadFile() {
+    this.element.querySelector("input[data-file]")?.click();
+  }
+
+  /**
+   * Read a dropped or chosen file: a character-sheet PDF (form fields or text) or a .txt file.
+   * The extracted text goes into the paste box, so it can be checked and edited, and is read straight away.
+   */
+  async readFile(file) {
+    const s = this.pc;
+    const isPdf = /\.pdf$/i.test(file.name) || file.type === "application/pdf";
+    const isText = /\.(txt|md)$/i.test(file.name) || file.type.startsWith("text/");
+    if ( !isPdf && !isText ) return ui.notifications.warn(game.i18n.localize("PCIMP.Pdf.WrongType"));
+    if ( file.size > 25 * 1024 * 1024 ) return ui.notifications.warn(game.i18n.localize("PCIMP.Pdf.TooBig"));
+    s.reading = true;
+    s.tab = "paste";
+    this.render();
+    try {
+      let text, note;
+      if ( isPdf ) {
+        const result = await readCharacterPdf(await file.arrayBuffer());
+        logPdf(result, file.name);
+        if ( result.source === "empty" || !result.text.trim() ) {
+          s.reading = false;
+          this.render();
+          return ui.notifications.warn(game.i18n.localize("PCIMP.Pdf.Empty"));
+        }
+        text = result.text;
+        note = game.i18n.format(result.source === "form" ? "PCIMP.Pdf.ReadForm" : "PCIMP.Pdf.ReadText",
+          { file: file.name, pages: result.pages });
+      } else {
+        text = await file.text();
+        note = game.i18n.format("PCIMP.Pdf.ReadText", { file: file.name, pages: 1 });
+      }
+      s.paste = text;
+      s.fileNote = note;
+      s.reading = false;
+      await this.applyPaste(text);
+    } catch(err) {
+      console.error(`${MODULE_ID} | Could not read ${file.name}`, err);
+      s.reading = false;
+      ui.notifications.error(game.i18n.format("PCIMP.Pdf.Failed", { file: file.name }));
+    }
+    this.render();
+  }
+
   static async #onParse() {
     const text = this.element.querySelector("textarea[name=paste]")?.value ?? this.pc.paste;
     this.pc.paste = text;
@@ -655,6 +740,15 @@ export class PCImporterWizard extends HandlebarsApplicationMixin(ApplicationV2) 
       target.disabled = false;
     }
   }
+}
+
+/** Names an entry could mean when there is no exact match in the preferred rules ("Elf" → the elf lineages). */
+async function ambiguous(type, name, rules) {
+  const key = normalize(name);
+  const words = k => k.split(" ").sort().join(" ");
+  const pool = (await CompendiumIndex.list(type, "any")).filter(e => rules === "any" || !e.rules || e.rules === rules);
+  if ( pool.some(e => e.key === key || words(e.key) === words(key)) ) return [];
+  return [...new Set(pool.filter(e => e.key.startsWith(`${key} `)).map(e => e.name))];
 }
 
 async function findSubclassLoose(name, classIdentifier, rules) {
