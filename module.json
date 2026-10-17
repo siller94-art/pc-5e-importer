@@ -2,7 +2,7 @@
   "id": "pc-5e-importer",
   "title": "PC 5/5.5e Importer",
   "description": "Import player characters into the D&D 5e system from a PDF character sheet, pasted text, or a step-by-step picker, then level them up. Handles species, backgrounds, classes, subclasses, feats, equipment, spells and traits for both 2014 and 2024 rules.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "authors": [
     {
       "name": "siller94-art",
@@ -41,5 +41,47 @@
   "manifest": "https://github.com/siller94-art/pc-5e-importer/releases/latest/download/module.json",
   "download": "https://github.com/siller94-art/pc-5e-importer/releases/latest/download/module.zip",
   "bugs": "https://github.com/siller94-art/pc-5e-importer/issues",
-  "readme": "https://github.com/siller94-art/pc-5e-importer/blob/main/README.md"
+  "readme": "https://github.com/siller94-art/pc-5e-importer/blob/main/README.md",
+  "media": [
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/siller94-art/pc-5e-importer/main/docs/screenshots/01-paste-and-pdf.png",
+      "caption": "Import PC opens the importer — drop a PDF, paste a sheet, or build step by step"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/siller94-art/pc-5e-importer/main/docs/screenshots/02-species-list.png",
+      "caption": "Pick a species from a searchable list, filtered by Both / 2014 / 2024"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/siller94-art/pc-5e-importer/main/docs/screenshots/03-species-details.png",
+      "caption": "The chosen option's full description appears beside the list"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/siller94-art/pc-5e-importer/main/docs/screenshots/04-background.png",
+      "caption": "Backgrounds work the same way"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/siller94-art/pc-5e-importer/main/docs/screenshots/05-class.png",
+      "caption": "Class: level stepper, multiclass slots, class details and subclass"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/siller94-art/pc-5e-importer/main/docs/screenshots/06-items-and-traits.png",
+      "caption": "Items & Traits: click skills; type to add feats, spells, gear and proficiencies"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/siller94-art/pc-5e-importer/main/docs/screenshots/07-review.png",
+      "caption": "Review everything before creating the character"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/siller94-art/pc-5e-importer/main/docs/screenshots/08-created-character.png",
+      "caption": "The finished character, built through the dnd5e advancement flow"
+    }
+  ]
 }

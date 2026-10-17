@@ -4,6 +4,40 @@ A Foundry VTT module for the D&D 5e system that **imports player characters** an
 
 Works with **2014 (5e)** and **2024 (5.5e)** content, using the classes, species and backgrounds already in your world (the D&D 5e system's own content plus any homebrew you have). It doesn't add any compendiums.
 
+## Screenshots
+
+**Import PC opens the importer — drop a PDF, paste a sheet, or build step by step**
+
+![Import PC opens the importer — drop a PDF, paste a sheet, or build step by step](docs/screenshots/01-paste-and-pdf.png)
+
+**Pick a species from a searchable list, filtered by Both / 2014 / 2024**
+
+![Pick a species from a searchable list, filtered by Both / 2014 / 2024](docs/screenshots/02-species-list.png)
+
+**The chosen option's full description appears beside the list**
+
+![The chosen option's full description appears beside the list](docs/screenshots/03-species-details.png)
+
+**Backgrounds work the same way**
+
+![Backgrounds work the same way](docs/screenshots/04-background.png)
+
+**Class: level stepper, multiclass slots, class details and subclass**
+
+![Class: level stepper, multiclass slots, class details and subclass](docs/screenshots/05-class.png)
+
+**Items & Traits: click skills; type to add feats, spells, gear and proficiencies**
+
+![Items & Traits: click skills; type to add feats, spells, gear and proficiencies](docs/screenshots/06-items-and-traits.png)
+
+**Review everything before creating the character**
+
+![Review everything before creating the character](docs/screenshots/07-review.png)
+
+**The finished character, built through the dnd5e advancement flow**
+
+![The finished character, built through the dnd5e advancement flow](docs/screenshots/08-created-character.png)
+
 ## Features
 
 **Import a PC** — the *Import PC* button at the top of the Actors sidebar opens a step-by-step window. Your character's name and the rules switch (**Both / 2014 / 2024**) sit at the top; each step shows what you picked.
