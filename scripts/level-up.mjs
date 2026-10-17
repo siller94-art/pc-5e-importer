@@ -43,15 +43,15 @@ export class LevelUpApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const target = Math.min(current + (Number(s.levels) || 1), 20);
     const conMod = actor.system.abilities.con?.mod ?? 0;
 
-    let hd = "", warnings = [], className = "", classFrom = 0;
+    let hd = "", warnings = [], className = "", classFrom = 0, classDoc = null;
     if ( s.mode === "existing" ) {
-      const cls = actor.items.get(s.classId);
+      const cls = classDoc = actor.items.get(s.classId);
       hd = cls?.system.hd?.denomination ?? "";
       className = cls?.name ?? "";
       classFrom = cls?.system.levels ?? 0;
       if ( cls && cls.system.levels + Number(s.levels) > 20 ) warnings.push(game.i18n.localize("PCIMP.ClassMax"));
     } else if ( s.newClassUuid ) {
-      const doc = await fromUuid(s.newClassUuid);
+      const doc = classDoc = await fromUuid(s.newClassUuid);
       hd = doc?.system.hd?.denomination ?? "";
       className = doc?.name ?? "";
       warnings.push(...multiclassWarnings(actor, [...owned, doc].filter(Boolean)));
@@ -71,7 +71,7 @@ export class LevelUpApp extends HandlebarsApplicationMixin(ApplicationV2) {
       preview: {
         from: current, to: target,
         profFrom: prof(current), profTo: prof(target),
-        hd, avg, asiLevel: [4, 8, 12, 16, 19].some(l => l > classFrom && l <= classFrom + (Number(s.levels) || 1))
+        hd, avg, asiLevel: asiLevels(classDoc).some(l => l > classFrom && l <= classFrom + (Number(s.levels) || 1))
       },
       warnings,
       canLevel: current < 20 && (s.mode === "existing" ? !!s.classId : !!s.newClassUuid)
@@ -112,6 +112,13 @@ export class LevelUpApp extends HandlebarsApplicationMixin(ApplicationV2) {
       name: actor.name, level: actor.system.details.level
     }));
   }
+}
+
+/** Levels at which a class grants an Ability Score Improvement, read from its own advancement (Fighter 6/14, Rogue 10, …). */
+function asiLevels(cls) {
+  const fromItem = (cls?.advancement?.byType?.AbilityScoreImprovement ?? [])
+    .map(a => Number(a.level)).filter(Number.isFinite);
+  return fromItem.length ? fromItem : [4, 8, 12, 16, 19];
 }
 
 function prof(level) { return `+${Math.ceil(Math.max(level, 1) / 4) + 1}`; }
